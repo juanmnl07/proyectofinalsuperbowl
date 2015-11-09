@@ -13,7 +13,7 @@ var db = monk('localhost:27017/nodetest1');
 server.listen(8000);
 
 app.get('/', function(req, res) {
-    res.sendfile(__dirname + '/views/index.html');
+    res.sendfile(__dirname + '/index.html');
 });
 
 io.sockets.on('connection', function(socket) {

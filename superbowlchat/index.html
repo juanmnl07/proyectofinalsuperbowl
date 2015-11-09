@@ -87,13 +87,7 @@
                         <input id="message" class="form-control input-lg" type="text">
                         
                         <span class="input-group-btn">
-                        <button class="btn btn-lg btn-primary" type="submit">Enviar</button>
-                        
-
-
-
-
-
+                        <button class="btn btn-lg btn-primary" type="submit">Enviar</button><div class="emojstext"></div>
                         </span>
                         </form>
                     </div>
@@ -122,6 +116,12 @@
         <script src="/socket.io/socket.io.js"></script>
         <script>
             jQuery(function($) {
+
+              //emoji
+              var $text = $('.emojstext');
+              var html = $text.html().trim().replace(/\n/g, '<br/>');
+              $text.html(jEmoji.unifiedToHTML(html));
+
                var socket = io.connect();
                var $messageForm = $('#send-message');
                var $messageBox = $('#message');
@@ -150,22 +150,23 @@
                });
                
                $messageForm.submit(function(e) {
-                   alert('test');
+
                    e.preventDefault();
                    if($messageBox.val()!='') {
                     var str = $messageBox.val();
                     //verificar si el usuario selecciono comunicarse con @Eliza
-                    /*if(str.indexOf("@Eliza") == 1){
-                      socket.emit('send message to eliza', str);
-                    } else {
+                    if(str.indexOf("@Eliza") == 0){
+                      socket.emit('send message to eliza', str+'-eliza');
+                    }else{
                       socket.emit('send message', str);
-                    }*/
+                    }
                    }
                    $messageBox.val('');
                });
                
                socket.on('new message', function(data) {
                   $chat.append('<b>'+data.nick+":</b> "+data.msg+"<br/>"); 
+                  console.log(data);
                });
                
                socket.on('usernames', function(data) {
