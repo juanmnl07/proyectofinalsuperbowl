@@ -1,0 +1,183 @@
+<html>
+    <head>
+        <title>
+            SuperBowl Chat
+        </title>
+        <style>
+            #contentWrap{
+                display: none;
+            }
+            #chatWrap{
+                float: left;
+            }
+            #chat{
+                position: relative;
+                width: 100%;
+                float:left;
+                min-height:100px;
+                height: 90%;
+                overflow: auto;
+            }
+        #emojiWrapper {
+  display: none;
+  width: 500px;
+  bottom: 160px;
+  position: absolute;
+  background-color: #aaa;
+  box-shadow: 0 0 10px #555;
+}
+
+        #emojiWrapper div {
+  margin: 2px;
+  padding: 2px;
+  width: 25px;
+  height: 25px;
+} 
+
+        #emojiWrapper span:hover {
+  background-color: blue;
+}
+
+        </style>
+        <link href="http://cdn.staticfile.org/emoji/0.2.2/emoji.css" rel="stylesheet" type="text/css" />
+        <script src="http://cdn.staticfile.org/jquery/2.1.0/jquery.min.js"></script>
+        <script src="http://cdn.staticfile.org/emoji/0.2.2/emoji.js"></script>
+        
+        <script src="https://code.jquery.com/jquery.js"></script>
+        
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+        
+    </head>
+    <body>
+    
+        <div class="container">
+        
+            <div class="page-header">
+                <h1>SuperBowl <small> Chat </a></small></h1>
+            </div>
+            
+            <div class="input-group" style="width:300px;text-align:center;margin:0 auto;" id="nickWrap">
+                <input id="nickname" class="form-control input-lg" type="text" placeholder="Nickname">
+                <span class="input-group-btn">
+                    <button class="btn btn-lg btn-primary" type="submit" id="setNick">OK</button>
+                </span>
+            </div>
+            <div class="alert fade in alert-danger alert-dismissable" data-dismiss="alert" id="login-error" style="display:none;">
+                <button type="button" class="close" id="closeAlert">×</button>
+                Este nickname ya fue usado. Elige uno nuevo.!
+            </div>
+            
+            <div id="contentWrap" class="row" style="height: 70%;">
+                <div class="col-md-2"></div>
+                <div id="chatWrap"  class="col-md-6">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">Chat</div>
+                        <div id="chat" class="panel-body"></div>
+                    </div>
+                    
+                    <div>
+                        <form id="send-message" class="input-group" style="text-align:center;margin:0 auto;">
+                        <input id="message" class="form-control input-lg" type="text">
+                        
+                        <span class="input-group-btn">
+                        <button class="btn btn-lg btn-primary" type="submit">Enviar</button><div class="emojstext"></div>
+                        </span>
+                        </form>
+                    </div>
+                    
+          
+                    <!--
+                        <input size="35" id="message"></input>
+                        <input type="submit"></input>
+                    </form>-->
+                </div>
+                
+                
+                
+                <div class="col-md-2">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            En linea
+                        </div>
+                        <div id="users" class="panel-body"></div>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            jQuery(function($) {
+
+              //emoji
+              var $text = $('.emojstext');
+              var html = $text.html().trim().replace(/\n/g, '<br/>');
+              $text.html(jEmoji.unifiedToHTML(html));
+
+               var socket = io.connect();
+               var $messageForm = $('#send-message');
+               var $messageBox = $('#message');
+               var $chat = $('#chat');
+               var $buttonSend = $('#send');               
+               var $nickForm = $('#setNick');
+               var $nickBox = $('#nickname');
+               var $users = $('#users');
+               var $closeAlert = $('#closeAlert');
+               
+               $nickForm.click(function(e) {
+                   e.preventDefault();
+                   socket.emit('new user', $nickBox.val(), function(data) {
+                       if(data) {
+                           $('#nickWrap').hide();
+                           $('#contentWrap').show();
+                       } else {
+                           $("#login-error").show();
+                       }
+                   });
+                   $nickBox.val('');
+               });
+               
+               $closeAlert.click(function(e) {
+                    $("#login-error").hide();
+               });
+               
+               $messageForm.submit(function(e) {
+
+                   e.preventDefault();
+                   if($messageBox.val()!='') {
+                    var str = $messageBox.val();
+                    //verificar si el usuario selecciono comunicarse con @Eliza
+                    if(str.indexOf("@Eliza") == 0){
+                      socket.emit('send message to eliza', str+'-eliza');
+                    }else{
+                      socket.emit('send message', str);
+                    }
+                   }
+                   $messageBox.val('');
+               });
+               
+               socket.on('new message', function(data) {
+                  $chat.append('<b>'+data.nick+":</b> "+data.msg+"<br/>"); 
+                  console.log(data);
+               });
+               
+               socket.on('usernames', function(data) {
+                    var html = '';
+                    for (var username in data) {
+                        html += username + '<br/>';
+                    }
+                    $users.html(html);
+                });               
+            });
+            
+        </script>
+    </body>
+</html>
