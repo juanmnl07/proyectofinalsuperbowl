@@ -1,9 +1,12 @@
-var request = require('request');
-var express = require('express'),
-    app = express(),
-    server = require('http').createServer(app),
-    io = require("socket.io").listen(server),
-    nicknames = {};
+var request = require('request'),
+    express = require('express'),
+    bodyParser  = require("body-parser"),
+    methodOverride = require("method-override");
+    
+app = express(),
+server = require('http').createServer(app),
+io = require("socket.io").listen(server),
+nicknames = {};
 
 // Dabatabase
 var mongo = require('mongodb');
