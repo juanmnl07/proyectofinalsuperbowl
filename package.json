@@ -6,6 +6,8 @@
   "repository": "",
   "author": "Cinthia B",
   "dependencies": {
+    "method-override": "^2.1.2",
+    "body-parser": "^1.5.1",
     "express": "~3.2.4",
     "socket.io": "~0.9.14",
     "emoji" : "~0.3.2",
