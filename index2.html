@@ -1,13 +1,14 @@
 <html>
     <head>
         <title>
-            SuperBowl
+            SuperBowl Chat
         </title>
 
 
 
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
         <style>
+
             #contentWrap{
                 display: none;
             }
@@ -23,8 +24,25 @@
                 overflow: auto;
        }
 
- 
- 
+        #emojiWrapper {
+  display: none;
+  width: 500px;
+  bottom: 160px;
+  position: absolute;
+  background-color: #aaa;
+  box-shadow: 0 0 10px #555;
+}
+
+        #emojiWrapper div {
+  margin: 2px;
+  padding: 2px;
+  width: 25px;
+  height: 25px;
+} 
+
+        #emojiWrapper span:hover {
+  background-color: blue;
+}
       #send-message {
   float:left;
 }
@@ -32,34 +50,27 @@
 .input-group{
 padding-top: 20px;
 }
-        
+    
+    
 body {
-  background-image: url("http://novagrass.mx/wp-content/uploads/2015/04/americano3.jpg");
+  background-image: url("http://espndeportes-assets.espn.go.com/2003/photos2015/0115/SuperBowl49_EMR0100a_2014_SCC_SRGB.png");
 background-repeat: no-repeat; 
 background-size: cover;
 }
 
-.flowplayer.is-splash,
-.flowplayer .fp-message {
-  background-color: #bbb;
-}
-#dashvod {
-  background-image: url(//flowplayer.org/media/img/drive/home/drive-shoot.jpg);
-  -webkit-background-size: auto 100%;
-  -moz-background-size: auto 100%;
-  background-size: auto 100%;
-}
-@media(-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
-  #dashvod {
-    background-image: url(//flowplayer.org/media/img/drive/home/drive-shoot@2x.jpg);
-  }
+ <!-- Latest compiled and minified JavaScript -->
+ #player {
+  background-color: #000;
 }
 
+#player .fp-ratio {
+  padding-top: 56.25%;
+}
 
         </style>
-       
+        <link href="http://cdn.staticfile.org/emoji/0.2.2/emoji.css" rel="stylesheet" type="text/css" />
         <script src="http://cdn.staticfile.org/jquery/2.1.0/jquery.min.js"></script>
-       
+        <script src="http://cdn.staticfile.org/emoji/0.2.2/emoji.js"></script>
         
         <script src="https://code.jquery.com/jquery.js"></script>
         
@@ -72,20 +83,17 @@ background-size: cover;
 
         <!-- Latest compiled and minified JavaScript -->
         <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-
-         <script type="text/javascript" src="flowplayer-3.2.11.min.js"></script>
+	<!-- Flowplayer library -->
+	<script src="//releases.flowplayer.org/5.5.2/flowplayer.min.js"></script>
  
-
-        <!-- Flowplayer library -->
-<script src="//releases.flowplayer.org/6.0.4/flowplayer.min.js"></script>
- 
-<!-- load the Flowplayer dash engine, including dash.js -->
-<script src="//releases.flowplayer.org/dashjs/flowplayer.dashjs.min.js"></script>
-
+	
+     
 
     </head>
     <body>
-
+<div id="player" class="is-splash color-light">
+   <div class="fp-ratio"></div>
+</div>
     
         <div class="container">
         
@@ -93,17 +101,12 @@ background-size: cover;
                 <h1>SuperBowl <small> 2016 </a></small></h1>
             </div>
 
-              
-
-		 <div id="wowza" style="width:600px;height:400px;margin-left: 9;text-align:center">
+                <!-- widescreen container, 560x240 (clip dimensions) * 1.15, center splash -->
+            <div id="wowza" style="width:600px;height:400px;margin-left: 9;text-align:center">
                 <img src="/media/img/player/splash_black.jpg"
                      height="276" width="548" style="cursor:pointer" />
             </div>
             
-
-           
-            </div>
-
             <div class="input-group" style="width:300px;text-align:center;margin-left:620px; top:-250px" id="nickWrap">
                 <input id="nickname" class="form-control input-lg" type="text" placeholder="Nickname">
                 <span class="input-group-btn">
@@ -158,6 +161,11 @@ background-size: cover;
         <script>
             jQuery(function($) {
 
+              //emoji
+              var $text = $('.emojstext');
+              var html = $text.html().trim().replace(/\n/g, '<br/>');
+              $text.html(jEmoji.unifiedToHTML(html));
+
                var socket = io.connect();
                var $messageForm = $('#send-message');
                var $messageBox = $('#message');
@@ -200,91 +208,53 @@ background-size: cover;
                    $messageBox.val('');
                });
                
-
-		
-
+		socket.on('load old msgs', function(docs){
+			for(var i=docs.length-1; i >= 0; i--){
+			displayMsg(docs[i]);
+				}
+			});
 
                socket.on('new message', function(data) {
                   $chat.append('<b>'+data.nick+":</b> "+data.msg+"<br/>"); 
                   console.log(data);
                });
                
+	       function displayMsg(data){
+	       $chat.append('<span class="msg"><b>' + data.nick + ': </b>' + data.msg + "</span><br/>");
+			}
                socket.on('usernames', function(data) {
                     var html = '';
-                    for (var username in data) {
-                        html += username + '<br/>';
-                    }
-                    $users.html(html);
-                });               
-            });
+                    var html = '';
+				for(var i=0; i < data.length; i++){
+					html += data[i] + '<br/>'
+				}
+				$users.html(html);
+			});
             
-
         </script>
 
+      <script type="text/javascript">
 
+ $f("wowza", "http://releases.flowplayer.org/swf/flowplayer-3.2.15.swf", {
+            clip: {
+                url: 'livestream',
+                scaling: 'fit',
+            live: true,
+            autoPlay: true,
+                provider: 'hddn'
+            },
+            plugins: {
+                hddn: {
+                    url: "flowplayer.rtmp-3.2.11.swf",
+                netConnectionUrl: 'rtmp://192.168.0.106/live'
+                }
+            },
+            canvas: {
+                backgroundGradient: 'none'
+            }
+        });
+        $f("wowza").play();
+</script>>
 
-<script>
-        window.onload = function () {
- 
-  flowplayer("#dashvod", {
-    splash: true,
-    embed: false, // setup would need iframe embedding
-    ratio: 9/16,
- 
-    dash: {
-        // exact codecs requirement
-        // avc1 high level 4.1 + aac_he
-        // disclaimer: this feature detection is broken in many clients
-        codecs: "avc1.640029, mp4a.40.5"
-        // avc1 high profile level 4.1 + aac_he
-    },
-    clip: {
-      sources: [
-        { type: "application/dash+xml",
-          src:  "//stream.flowplayer.org/drive.mpd" },
-        { type: "application/x-mpegurl",
-          src:  "//stream.flowplayer.org/drive.m3u8" },
-        { type: "video/webm",
-          src:  "http://192.168.43.206/dash" },
-        { type: "video/mp4",
-          src:  "//stream.flowplayer.org/drive.mp4" }
-      ]
-    }
- 
-  }).on("ready", function (e, api, video) {
-    // info for demo purposes
-    document.getElementById("engine").innerHTML = api.engine.engineName;
-    document.getElementById("vtype").innerHTML = video.type;
-    document.getElementById("src").innerHTML = video.src;
- 
-  });
- 
-
-  var livecontainer = document.getElementById("dashlive");
-  flowplayer(livecontainer, {
-    ratio: 9/16,
-    splash: true,
-    clip: {
-      live: true,
-      sources: [
-        { type: "application/dash+xml",
-          src:  "http://vm2.dashif.org/livesim/testpic_6s/Manifest.mpd" }
-      ]
-    }
- 
-  }).on("error", function (e, api, err) {
-    if (err.code == 5) {
-      // customize error as this is not a production scenario
-      livecontainer.querySelector(".fp-message h2").innerHTML =
-          "Test stream only available as MPEG-DASH";
-      livecontainer.querySelector(".fp-message p").innerHTML =
-          "Please try in a different browser";
-    }
- 
-  });
- 
-};
-
-</script>
     </body>
 </html>

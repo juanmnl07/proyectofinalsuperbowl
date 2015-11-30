@@ -25,16 +25,38 @@ client.on('connection', function(socket) {
             if(err) throw err;
             socket.emit('output', res);
         });
+
        
         socket.on('input', function(data) {
             col.insert({name: data.name, message: data.message}, function(err, docs) {
+
                 client.emit('output', [data]);
             });
         });
     });
+
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 server.listen(8000);
+
+
 
 app.get('/', function(req, res) {
     res.sendfile(__dirname + '/index.html');
@@ -44,7 +66,7 @@ app.get('/flowplayer.min.js', function(req, res) {
     res.sendfile(__dirname + '/flowplayer.min.js');
 });
 
-io.sockets.on('connection', function(socket) {
+/*io.sockets.on('connection', function(socket) {
     socket.on('send message to eliza', function(data) {
         var strArray = data.split(':');
         var strArrayMessage = strArray[1].split('-');
@@ -60,6 +82,7 @@ io.sockets.on('connection', function(socket) {
                 io.sockets.emit('new message', {msg: response.body, nick: '@Eliza'});
             });
         }
+
     });
 
     socket.on('send message', function(data) {
@@ -90,4 +113,4 @@ io.sockets.on('connection', function(socket) {
     function updateNickNames() {
         io.sockets.emit('usernames', nicknames);
     }
-});
+});*/

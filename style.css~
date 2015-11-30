@@ -42,4 +42,6 @@ a {
 
 
 
-
+.input-group{
+padding-top: 100px;
+}

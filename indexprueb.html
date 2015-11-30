@@ -1,0 +1,142 @@
+
+   <html>
+    <head>
+        <title>
+            SuperBowl Chat
+        </title>
+
+
+
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <style>
+
+         .flowplayer.is-splash,
+.flowplayer .fp-message {
+  background-color: #bbb;
+}
+#dashvod {
+  background-image: url(//flowplayer.org/media/img/drive/home/drive-shoot.jpg);
+  -webkit-background-size: auto 100%;
+  -moz-background-size: auto 100%;
+  background-size: auto 100%;
+}
+@media(-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  #dashvod {
+    background-image: url(//flowplayer.org/media/img/drive/home/drive-shoot@2x.jpg);
+  }
+}
+
+        </style>
+        <link href="http://cdn.staticfile.org/emoji/0.2.2/emoji.css" rel="stylesheet" type="text/css" />
+        <script src="http://cdn.staticfile.org/jquery/2.1.0/jquery.min.js"></script>
+        <script src="http://cdn.staticfile.org/emoji/0.2.2/emoji.js"></script>
+        
+        <script src="https://code.jquery.com/jquery.js"></script>
+        
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+	<!-- Flowplayer library -->
+	<script src="//releases.flowplayer.org/5.5.2/flowplayer.min.js"></script>
+ 
+	<!-- load the Flowplayer v5 dash engine, including dash.js -->
+	<script src="//releases.flowplayer.org/dashjs/flowplayer.dashjs-v5.min.js"></script>
+
+     
+
+    </head>
+    <body>
+
+            
+       <h2 id="vod">VOD</h2>
+ 
+<div id="dashvod" class="is-closeable"></div>
+ 
+<div class="info">
+  <p>player engine: <span id="engine"></span></p>
+ 
+  <p>video type: <span id="vtype"></span></p>
+ 
+  <p>video source: <span id="src"></span></p>
+</div>
+ 
+<h2 id="live">Live</h2>
+ 
+<div id="dashlive" class="no-toggle"></div>
+ 
+<p class="info">DASH live stream simulation</p>
+        <script>
+
+     window.onload = function () {
+ 
+  flowplayer("#dashvod", {
+    splash: true,
+    embed: false, // setup would need iframe embedding
+    ratio: 9/16,
+ 
+    dash: {
+        // exact codecs requirement
+        // avc1 high level 4.1 + aac_he
+        // disclaimer: this feature detection is broken in many clients
+        codecs: "avc1.640029, mp4a.40.5"
+        // avc1 high profile level 4.1 + aac_he
+    },
+    clip: {
+      sources: [
+        { type: "application/dash+xml",
+          src:  "//stream.flowplayer.org/drive.mpd" },
+        { type: "application/x-mpegurl",
+          src:  "//stream.flowplayer.org/drive.m3u8" },
+        { type: "video/webm",
+          src:  "//stream.flowplayer.org/drive.webm" },
+        { type: "video/mp4",
+          src:  "//stream.flowplayer.org/drive.mp4" }
+      ]
+    }
+ 
+  }).on("ready", function (e, api, video) {
+    // info for demo purposes
+    document.getElementById("engine").innerHTML = api.engine.engineName;
+    document.getElementById("vtype").innerHTML = video.type;
+    document.getElementById("src").innerHTML = video.src;
+ 
+  });
+ 
+
+  var livecontainer = document.getElementById("dashlive");
+  flowplayer(livecontainer, {
+    ratio: 9/16,
+    splash: true,
+    clip: {
+      live: true,
+      sources: [
+        { type: "application/dash+xml",
+          src:  "http://vm2.dashif.org/livesim/testpic_6s/Manifest.mpd" }
+      ]
+    }
+ 
+  }).on("error", function (e, api, err) {
+    if (err.code == 5) {
+      // customize error as this is not a production scenario
+      livecontainer.querySelector(".fp-message h2").innerHTML =
+          "Test stream only available as MPEG-DASH";
+      livecontainer.querySelector(".fp-message p").innerHTML =
+          "Please try in a different browser";
+    }
+ 
+  });
+ 
+};
+ 
+
+        </script>
+
+    </body>
+</html>
+
